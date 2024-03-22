@@ -31,7 +31,7 @@
     libFile     = 'libtracking4matlab.so';
     
 % name the interface
-    libname     = "libtracking4matlab";
+    libname     = "libtrackinginmatlab";
     
 
 %% GENERATE LIBRARY
@@ -49,22 +49,22 @@
             ...%'OverwriteExistingDefinitionFiles',true,...
             'Verbose',true,...
             'TreatConstCharPointerAsCString',true ...
-            )
+            );
         
 
     
     % check definition and run the build process
-        definelibtracking4matlab;
-        summary(definelibtracking4matlab)
+        definelibtrackinginmatlab;
+        summary(definelibtrackinginmatlab)
         
-        build(definelibtracking4matlab)
+        build(definelibtrackinginmatlab)
     
 
 %% add LIB-path to Matlab path
     addpath(fullfile(pubPath,libname))
     setenv('PATH', [char(fullfile(pubPath,libname)) ':' getenv('PATH')]);
     setenv('LD_LIBRARY_PATH',[char(fullfile(pubPath,libname)) ':' getenv('LD_LIBRARY_PATH')])
-    import clib.tracking4matlablib.*
+    import clib.libtrackinginmatlab.*
 
 
 
@@ -73,7 +73,7 @@
 % 1) exit Matlab
 % 2) add lib-path to environment PATH (temporarily), run from shell:
     %{
-    export LD_LIBRARY_PATH="matlab/tracking4matlablib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="matlab/libtrackinginmatlab:$LD_LIBRARY_PATH"
     %}
 % 3) start Matlab from this shell
 % 4) add path
@@ -83,10 +83,10 @@
         mfilePath = matlab.desktop.editor.getActiveFilename;
     end
     curdir = fileparts(fileparts(mfilePath));
-    addpath(fullfile(curdir,'matlab/tracking4matlablib'))
-    import clib.tracking4matlablib.*
+    addpath(fullfile(curdir,'matlab/libtrackinginmatlab'))
+    %import clib.libtrackinginmatlab.*
 % 5) execute function
-    %clib.tracking4matlablib.videoTracking()
+    %clib.libtrackinginmatlab.videoTracking()
 
 
 

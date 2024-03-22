@@ -1,37 +1,54 @@
+function [] = mri_example_tracking(example_number)
+%% MRI_EXAMPLE_TRACKING()  loads magnetic resonance imaging navigator data 
+%   from dicoms, converts them into a video, runs OpenCV object tracking on
+%   the target, writes the in-plane displacements into log-file(s), rotates
+%   the in-plane vectors into a common 3D coordinate system (patient
+%   coordinate system), combines these displacements using SVD and plots
+%   the resulting displacements for each acquisition.
+% 
+% MRI_EXAMPLE_TRACKING(EXAMPLE_NUMBER) allows to select a different example dataset.
+% %TODO [RET] = MRI_EXAMPLE_TRACKING(...) returns the results in RET.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PREPARATION:
 % This example uses C++ code from within Matlab. Some preparation steps
 %   need to be carried out in advance:
-        % 0.a) clone the OXSA toolbox into './matlab/OXSA' or add manually add the 'OXSA' folder to the matlab path
+        % 1) Clone the OXSA toolbox into './matlab/OXSA' or add manually add the 'OXSA' folder to the matlab path
             % e.g. from the shell:
             %{
                 cd ./matlab
                 git clone https://github.com/OXSAtoolbox/OXSA
             %}
-        % 0.b) build libraries for matlab (they are prebuilt, but in case you need to re-build them):
+        % 2) Build interface libraries for matlab:
             % from Matlab:
             %{
                 mexgen_tracking
                 mexgen_calcshiftvector
             %}
-        % 1) after building the libraries, close Matlab.
-        % 2) temporarily add absolute path to environment LD_LIBRARY_PATH
+        % 3) (optional. older Matlab versions) After building the libraries, close Matlab.
+        % 4) (optional. older Matlab versions) Temporarily add absolute path to environment LD_LIBRARY_PATH
             % run from shell that you start Matlab from:
             % e.g. in Linux (replace '~/github_example_tracking/' by the
             % absolute path to the example:
             %{
-                export LD_LIBRARY_PATH="~/github_example_tracking/tracking4matlablib:$LD_LIBRARY_PATH"
-                export LD_LIBRARY_PATH="~/github_example_tracking/calcshiftvectorlib:$LD_LIBRARY_PATH"
+                export LD_LIBRARY_PATH="~/github_example_tracking/libtrackinginmatlab:$LD_LIBRARY_PATH"
+                export LD_LIBRARY_PATH="~/github_example_tracking/libcalcshiftvector:$LD_LIBRARY_PATH"
             %}
-        % 3) start Matlab from this shell
-        % 5) test function
+        % 5) Start Matlab from this shell
+        % 6) Test functionionality, or run this script.
             %{
                 trackerNum = 2;
                 initBbox = [51 37 26 31];
                 refIdx = 1;
-                clib.tracking4matlablib.videoTracking('results/videos/157_flash_nav_set-210526_2slc_SETTER_START_slc-1.avi',trackerNum,refIdx-1,initBbox,true,true)
+                clib.libtrackinginmatlab.videoTracking('results/videos/157_flash_nav_set-210526_2slc_SETTER_START_slc-1.avi',trackerNum,refIdx-1,initBbox,true,true)
             %}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% check inputs
+    if nargin==0 || isempty(example_number)
+        example_number = 1; %{1,2,3,4}
+    end
 
     
 %% get path to current file
@@ -43,67 +60,24 @@
 
 cd(maindir);
 addpath(genpath(fullfile(maindir,'matlab')))
-addpath(fullfile(maindir,'matlab/libtracking4matlab'))
-addpath(fullfile(maindir,'matlab/calcshiftvectorlib'))
-%{
-    setenv('PATH',           [char(fullfile(maindir,'matlab','tracking4matlablib')) ':' getenv('PATH')]);
-    setenv('LD_LIBRARY_PATH',[char(fullfile(maindir,'matlab','tracking4matlablib')) ':' getenv('LD_LIBRARY_PATH')])
-    setenv('PATH',           [char(fullfile(maindir,'matlab','calcshiftvectorlib')) ':' getenv('PATH')]);
-    setenv('LD_LIBRARY_PATH',[char(fullfile(maindir,'matlab','calcshiftvectorlib')) ':' getenv('LD_LIBRARY_PATH')])
-%}
-
-%import clib.calcshiftvectorlib.*
-%import clib.tracking4matlablib.*
-
-
-%% shipped examples:
-    xmpl_data = struct([]);
-
-    % example 1
-        xmpl_data(1).dicom_dir = fullfile(maindir,'data/phantom_1');    % path to dicoms
-        xmpl_data(1).dicom_num = 157;                 % dicom series number
-        xmpl_data(1).refIdx    = 1;                   % reference index for motion calculation (MATLAB indexing starting from 1)
-        xmpl_data(1).initBbox  = [ [51 37 26 31];...
-                                   [46 29 28 31] ];   % initial bounding box for the two slices
-
-    % example 2
-        xmpl_data(2).dicom_dir = fullfile(maindir,'data/phantom_2');    % path to dicoms
-        xmpl_data(2).dicom_num = 31;                  % dicom series number
-        xmpl_data(2).refIdx    = 1;                   % reference index for motion calculation (MATLAB indexing starting from 1)
-        xmpl_data(2).initBbox  = [ [25 22 69 75];...
-                                   [44 29 66 74] ];   % initial bounding box for the two slices
-
-    % example 3
-        xmpl_data(3).dicom_dir = fullfile(maindir,'data/phantom_3');    % path to dicoms
-        xmpl_data(3).dicom_num = 39;                  % dicom series number
-        xmpl_data(3).refIdx    = 1;                   % reference index for motion calculation (MATLAB indexing starting from 1)
-        xmpl_data(3).initBbox  = [ [30 58 47 24];...
-                                   [51 34 45 26] ];   % initial bounding box for the two slices
-
-    % example 4
-        xmpl_data(4).dicom_dir = fullfile(maindir,'data/phantom_4');    % path to dicoms
-        xmpl_data(4).dicom_num = 71;                  % dicom series number
-        xmpl_data(4).refIdx    = 1;                   % reference index for motion calculation (MATLAB indexing starting from 1)
-        xmpl_data(4).initBbox  = [ [49 62 28 35];...
-                                   [22 55 37 47] ];   % initial bounding box for the two slices
+    addpath(fullfile(maindir,'matlab/libtrackinginmatlab'))
+    addpath(fullfile(maindir,'matlab/libcalcshiftvector'))
 
 
 %% specify input
-    use_example_number = 1; %{1,2,3,4}
-
-    trackerNum = 2; %{2 3 7}
+    iTrackerNum = 2; %{2 3 7}
     video_output_type = 1; %{1}
-    saveDicomAsVideos = true; %{true,false}
+    bOverwriteExistingVideos = false; %{true,false}
 
     
 %% load dicom
-    data        = xmpl_data(use_example_number);
+    data        = mri_example_datasets(fullfile(maindir,'data'),example_number);
     navData     = loadNavSeries(data.dicom_dir,data.dicom_num);
 
 
 %% create video: convert navigator-series dicoms to videos (1/slice)
     tic
-    [~,vidNameFull] = dicom2video(navData,video_output_type,false,'silent',true);
+    [~,vidNameFull] = dicom2video(navData,video_output_type,bOverwriteExistingVideos,'silent',true);
     if any(arrayfun(@(x) ~exist(x{:},'file'),vidNameFull))
         [~,vidNameFull] = dicom2video(navData,video_output_type,true,'silent',false);
     end                    
@@ -122,12 +96,12 @@ addpath(fullfile(maindir,'matlab/calcshiftvectorlib'))
             cd(vid_dir)
             tic
             fprintf("slice %d\n",slcidx);
-            bIsOk = clib.libtracking4matlab.videoTracking(vidNameFull{slcidx},trackerNum,data.refIdx-1,data.initBbox(slcidx,:),true,true);
+            bIsOk = clib.libtrackinginmatlab.videoTracking(vidNameFull{slcidx},iTrackerNum,data.refIdx-1,data.initBbox(slcidx,:),true,true);
             toc
-        c
- tracking4maltab   
+        
+    
         %% read log files
-            log_name = sprintf('%s__TRACK_%d_%d_%d_%d_%d.log',bf,trackerNum,data.initBbox(slcidx,:));
+            log_name = sprintf('%s__TRACK_%d_%d_%d_%d_%d.log',bf,iTrackerNum,data.initBbox(slcidx,:));
             fprintf(log_name);
             log_file = fullfile(vid_dir,log_name);
             if ~exist(log_file,'file')
@@ -181,22 +155,31 @@ addpath(fullfile(maindir,'matlab/calcshiftvectorlib'))
     for fdx = 1:navData.nReps
         %%
         %{
+            % simple test:
             bb = [1 2 1]; %lengths
             AA = [[1 0 0],[0 1 0],[1 0 0],[0 1 0]]; % basis vectors
             ww = [1 1 1]; % weights
-            res = clib.calcshiftvectorlib.MyCalcShiftVector(bb,ww,AA);
+            res = clib.libcalcshiftvector.MyCalcShiftVector(bb,ww,AA);
             res.double
         %}
 
         %%
-        res = clib.calcshiftvectorlib.MyCalcShiftVector(bb(:,fdx)',ww(:,fdx)',AA(:,fdx)');
+        res = clib.libcalcshiftvector.MyCalcShiftVector(bb(:,fdx)',ww(:,fdx)',AA(:,fdx)');
         motion_3D_vec(:,fdx) = res.double;
     end
 
-    hFig = 101; clf(figure(hFig))
+
+%% display result
+
+    hFig = 100+example_number; clf(figure(hFig))
     hAx = axes(figure(hFig));
         plot(hAx,motion_3D_vec')
         legend(hAx,{'SAG','COR','TRA'})
-        xlabel('repetition / -')
+        xlabel('navigator number / -')
         ylabel('displacement / mm')
-        title('motion in patient coordinate system')
+        title('motion in patient coordinate system [SAG,COR,TRA]')
+
+
+%% output
+    %ret; %TODO
+end

@@ -31,7 +31,7 @@
     libFile     = 'libCalcShift_cppwrapper.so';
     
 % name the interface
-    libname     = "calcshiftvectorlib";
+    libname     = "libcalcshiftvector";
     
 
 %% GENERATE LIBRARY
@@ -49,23 +49,24 @@
             ... %'OverwriteExistingDefinitionFiles',true,...
             'Verbose',true,...
             'TreatConstCharPointerAsCString',true...
-            )
+            );
     
 
     
     % check definition and run the build process
-        definecalcshiftvectorlib
-        summary(definecalcshiftvectorlib)
+        definelibcalcshiftvector
+        summary(definelibcalcshiftvector)
     
-        build(definecalcshiftvectorlib)
+        build(definelibcalcshiftvector)
     
 
 %% add LIB-path to Matlab path
     addpath(fullfile(pubPath,libname))
+    %{
     setenv('PATH', [char(fullfile(pubPath,libname)) ':' getenv('PATH')]);
     setenv('LD_LIBRARY_PATH',[char(fullfile(pubPath,libname)) ':' getenv('LD_LIBRARY_PATH')])
-    import clib.calcshiftvectorlib.*
-
+    import clib.libcalcshiftvector.*
+    %}
 
 
 %% RUN
@@ -73,7 +74,7 @@
 % 1) exit Matlab
 % 2) add lib-path to environment PATH (temporarily), run from shell:
     %{
-    export LD_LIBRARY_PATH="matlab/calcshiftvectorlib:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH="matlab/libcalcshiftvector:$LD_LIBRARY_PATH"
     %}
 % 3) start Matlab from this shell
 % 4) add path 
@@ -83,11 +84,11 @@
         mfilePath = matlab.desktop.editor.getActiveFilename;
     end
     curdir = fileparts(fileparts(mfilePath));
-    addpath(fullfile(curdir,'matlab/calcshiftvectorlib'))
-    import clib.tracking4matlablib.*
+    addpath(fullfile(curdir,'matlab/libcalcshiftvector'))
+    %import clib.libcalcshiftvector.*
 % 5) execute function
     % f1: direct vector hand-over
-        %res = clib.calcshiftvectorlib.MyCalcShiftVector([1 2 1],[1 1 1],[1 0 0 0 1 0 0 1 0]);
+        %res = clib.libcalcshiftvector.MyCalcShiftVector([1 2 1],[1 1 1],[1 0 0 0 1 0 0 1 0]);
         %res.double
         
 
