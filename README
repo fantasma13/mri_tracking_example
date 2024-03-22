@@ -1,0 +1,60 @@
+This is sample code associated with the paper ....
+
+This ia a wrapper around OpenCV tracking functionality to demonstrate the applicability to MRI.
+
+This code and data are for illustration and educational purposes only. It comes as is, use at your own risk, the authors take no warranty.
+
+The module comes in two part, the C++ code and a matlab interface. First, build the C++ interface. We used linux for
+development and testing. You may have varying success when trying on other OSes. Please let me know if you make it work.
+
+You need to have a recent copy of the following software
+
+* cmake
+* opencv >= 3
+* a C/C++ compiler
+
+First, go into src, create a build directory.
+
+> mkdir build
+> cd build
+> cmake ../
+
+Check the output and make sure all errors are corrected. Refer to cmake documentation if you have trouble finding
+libraries that you know are installed.
+
+> make 
+> sudo make intall
+
+This will put stuff in /usr/local/lib and /usr/local/bin.
+
+Add /usr/local/lib to LD_LIBRARY_PATH in your environment.
+
+MATLAB:
+
+We used releases 2021B and 2023A
+
+* OXSA is required to import DICOM images.
+
+Prepare the C++/MATLAB interface by running in MATLAB
+
+> mexgen_tracking
+> mexgen_calcshiftvector
+
+Try everything worked by running
+
+> example_tracking
+
+
+
+---
+
+Troubleshooting
+
+The Matlab C++ interface is notorious in not working. There are several important steps.
+
+Make sure LD_LIBRARY_PATH is set correctly before starting matlab. Also, use system('ldd -d libtracking4matlab.so') to
+ensure all dependencies are met. If all fails, use the binary from the command line for tracking. SVD (calcshiftvector)
+ususally is simpler to make work.
+
+
+

@@ -1,0 +1,12 @@
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+outcpp.avi
+
+install_manifest.txt
+*.avi
+*.log
+opencv_trackVideo
+test_tracking4matlab
+*.so 
