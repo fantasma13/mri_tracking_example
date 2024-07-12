@@ -1,5 +1,5 @@
 # MRI TRACKING EXAMPLE
-This is sample code associated with the paper **A Modular Motion Compensation Pipeline for Prospective Respiratory Motion Correction of Multi-Nuclear MR Spectroscopy** by **Wampl et al.**, 2023, [preprint](http://dx.doi.org/10.21203/rs.3.rs-3593302/v1). 
+This is sample code associated with the paper [**A Modular Motion Compensation Pipeline for Prospective Respiratory Motion Correction of Multi-Nuclear MR Spectroscopy**](https://doi.org/10.1038/s41598-024-61403-w) by **Wampl et al.** (2024). 
 
 This is a wrapper around [OpenCV](https://opencv.org) tracking functionality to demonstrate the applicability to MRI.
 
